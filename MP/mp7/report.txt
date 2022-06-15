@@ -1,0 +1,329 @@
+PUT YOUR MP7 REPORT IN THIS FILE.
+
+1. printRev
+
+        The code receives strings as inputs and would print the reverse of the string and the length of the string
+    with the format: "XXXXX" reversed is "XXXXX" (length 5). 
+        The code takes arguments as strings and strings with spaces separated would be treated as several 
+    arguments. In the main function, it uses 'argc' to indicate the number of arguments we enter in the command line
+    and the first argument is './prev'. If we simply enter './prev' without string argument, the 'argc' = 1 and 
+    the main function would printout "syntax: ./prev <string1> <string2> ..." and return the function. If we enter 
+    './prev' with string argument, the 'argc' > 1 and both './prev' and strings would be stored in an array named 'argv'.
+    Then the main function would loop and call 'print_reverse' function to printout reversed strings and the length 
+    of the strings.
+        For the 'print_reverse' function, it uses recursive function to calculate the length and then printout reversed
+    string.
+
+#1 TEST_CASES:
+    I tested five cases as shown below and two of them get correct outputs.
+    All cases executed successfully without warning and error but get incorrect results.
+    Both INPUT, ACTUAL_OUTPUT and DESIRED_OUTPUT have been presented below.
+    ______________________________________________________________________________________________________
+    #1  INPUT:              "argument"
+        ACTUAL_OUTPUT:      9 8 7 6 5 4 3 2 1 0
+                            What's on the stack now?
+
+                            "argument" reversed is "tnemugra" (length 8)
+        DESIRED_OUTPUT:     same as actual OUTPUT
+        DESCRIPTION:        CASE#1 get correct output and result.
+    ______________________________________________________________________________________________________
+    #2  INPUT:              "viceversa"
+        ACTUAL_OUTPUT:      9 8 7 6 5 4 3 2 1 0
+                            What's on the stack now?
+
+                            "viceversa" reversed is "asreveciv" (length 32773)
+        DESIRED_OUTPUT:     "viceversa" reversed is "asreveciv" (length 9)
+        DESCRIPTION:        CASE#2 get incorrect output as it get incorrect length of the string I input.
+    ______________________________________________________________________________________________________
+    #3  INPUT:              "vice"
+        ACTUAL_OUTPUT:      9 8 7 6 5 4 3 2 1 0
+                            What's on the stack now?
+
+                            "vice" reversed is "eciv" (length 32768)
+        DESIRED_OUTPUT:     "vice" reversed is "eciv" (length 4)
+        DESCRIPTION:        CASE#3 get incorrect output as it get incorrect length of the string.
+    ______________________________________________________________________________________________________
+    #4  INPUT:              "vicecersaabcdef"
+        ACTUAL_OUTPUT:      9 8 7 6 5 4 3 2 1 0
+                            What's on the stack now?
+
+                            "viceversaabcdef" reversed is "fedcbaasreveciv" (length 15)
+        DESIRED_OUTPUT:     same as actual OUTPUT
+        DESCRIPTION:        CASE#4 get correct output.
+    ______________________________________________________________________________________________________       
+    #5  INPUT:              "vicecersaabcdefg"
+        ACTUAL_OUTPUT:      9 8 7 6 5 4 3 2 1 0
+                            What's on the stack now?
+
+                            "viceversaabcdefg" reversed is "gfedcbaasreveciv" (length 32540)
+        DESIRED_OUTPUT:     "viceversaabcdefg" reversed is "gfedcbaasreveciv" (length 16)
+        DESCRIPTION:        CASE#5 get incorrect output with incorrect length.
+
+#####################################################################################################################
+
+#2 TRACE_BUGS:
+    I used GDB to trace for the bugs with commands: gdb prev, (gdb) break, (gdb) r <>, (gdb) n
+    Take CASE#2 as example.
+    ______________________________________________________________________________________________________
+    GDB_COMMAND_WITH_OUTPUT:
+    #1  (gdb) break prmain.c:34
+            Breakpoint 1 at 0x1264: file prmain.c, line 34.
+        (gdb) r viceversa
+            Starting program: /home/guanshujie/Desktop/ECE/MP/mp7/printRev/prev viceversa
+            9 8 7 6 5 4 3 2 1 0
+            What's on the stack now?
+
+
+            Breakpoint 1, main (argc=2, argv=0x7fffffffde48) at prmain.c:34
+            34		printf ("\"%s\" reversed is \"", argv[i]);
+    #2  (gdb) n
+            35		printf ("\" (length %d)\n", print_reverse (argv[i]));
+    #3  (gdb) n
+            "viceversa" reversed is "asreveciv" (length 32776)
+            30	    for (i = 1; argc > i; i++) {
+    _______________________________________________________________________________________________________
+    #Analysis of GDB results:
+        In command#1, I set break point at line 34 before the program print out the length.
+        Before command#2, the program executed correctly with correct outputs.
+        For command#2, it executed line 34 correctly with output: "viceversa" reversed is "
+        But for command#3, it executed line 35 successfully but prints out correct reversed string with wrong length.
+    #Analysis of results and erroneous behavior:
+            As shown above, the incorrect output occurs when executed command#3. The output indicates that 
+        the erroneous behavior of code at line 35 leads to the incorrect results.
+
+#####################################################################################################################
+
+#3 ANALYSIS_BUG:
+        According the GDB command result showing above, I can conclude that the code at line 35 generates incorrect 
+    outputs which leads to the incorrect result of length. By further analysis, it is clear that code at line 35
+    call the function 'print_reverse' to output the reverse string and calculate the length of the string. Thus, 
+    the function 'print_reverse' has bugs when calculate the length of the string.
+        Generally, to calculate the length of a string, we need a count variable and a accumulation code to accumulate. 
+        Thus, take look at the cases I test, the erroneous behavior print out extremely large length which could 
+    not happen if the bug occurs at accumulation code part since the reverse string is correct without much more or less 
+    characters. Thus, the root of the bug may occurs at the variable used to count for the length of the string. 
+        To fix this bug, we need to check the variable used in print_reverse to accumulate for the length of the string.
+    After reading the code of the 'print_reverse', it is obvious that when set the variable 'rest' to count for the length, 
+    it simply used 'int32_t rest' without initializing it. Without initializing, the variable 'rest' in this function would
+    be filled with unknown bits in the stack of this function in the memory and thus we would get extremely large number when
+    accumulate the length. 
+        The way to fix it is to initialize it by 'int32_t rest = 0;'.
+
+
+
+
+
+
+
+
+
+
+
+
+
+2. primeNumber
+        This program check and printout all prime numbers between 1 and 1000.
+        The method this code takes to check the prime number applied number theory that: If n is a composite integer, 
+    then n has a prime divisor less than or equal to sqrt(n). That is, for a number n, we only have to loop from 2 to
+    sqrt(n) and check if there exists a prime divisor for n to indicate whether n is prime or not. The function 'is_prime'
+    apply the same method by calling 'divides_evenly' to check whether a number can be divided by a certain number k between
+    2 and sqrt(n). The possible cause of the bug has been presented in #3 ANALYSIS_BUG.
+
+#1 TEST_CASES:
+    INPUT:                  None
+    ACTUAL_OUTPUT:          2 is prime
+                            3 is prime
+                            4 is prime
+                            5 is prime
+                            7 is prime
+                            9 is prime
+                            ...
+
+    DESIRED_OUTPUT:         2 is prime
+                            3 is prime
+                            5 is prime
+                            7 is prime
+                            11 is prime
+                            ...
+    DESCRIPTION:            As I found, the actual output of primeNumber.c regards n^2, where n is a prime number, as
+                            a prime number also, which is certainly incorrect.
+
+#####################################################################################################################
+
+#2 TRACE_BUGS:
+    I used GDB to trace for the bugs with command: gdb primeNumber, (gdb) break, (gdb) run and (gdb) continue.
+
+    ______________________________________________________________________________________________________
+    GDB_COMMAND_WITH_OUTPUT:
+    #1  (gdb) break primeNumber.c:64
+            Breakpoint 1 at 0x1194: file primeNumber.c, line 67.
+    #2  (gdb) run   
+            2 is prime.
+            3 is prime.
+            4 is prime.
+
+            Breakpoint 1, divides_evenly (divisor=2, value=5) at primeNumber.c:67
+            67	    multiple = (value / divisor) * divisor;
+    #3  (gdb) continue
+            5 is prime.
+
+            Breakpoint 1, divides_evenly (divisor=2, value=6) at primeNumber.c:67
+    #4  (gdb) info locals
+            multiple = 4
+    #5  (gdb) continue
+            Breakpoint 1, divides_evenly (divisor=2, value=7) at primeNumber.c:67
+            67	    multiple = (value / divisor) * divisor;
+    #6  (gdb) info locals
+            multiple = 6
+        ......
+    ______________________________________________________________________________________________________
+    #Analysis of GDB results:
+        For command#1, I set breakpoint at function 'divides_evenly'.
+        For command#2, the code runs and generates outputs. Clearly, '4 is prime' is incorrect.
+            But it did not stop at Breakpoint 1 when check 4.
+        For command#3, as last step stops at 'divides_evenly' with input divisor = 2 and value = 6
+            after continuing, it generates output '5 is prime'.
+        For command#4, I check the variable value in function 'divides_evenly' and 'multiple' is 4 after calling.
+    #Analysis of results and erroneous behavior:
+            I repeated command#5 and #6 several times and the results given by GDB commands indicates that 
+        function 'is_prime' called the function 'divides_evenly' wrongly when the value is the square of prime 
+        and thus give incorrect output. For instance, when the value is 7, 'is_prime' called 'divides_evenly' for
+        once and then generates output '5 is prime'. However, when the val is 9, 'is_prime' also called 'divides_evenly'
+        for once and generates output '9 is prime', which is certainly incorrect. 
+            For the first three outputs 2, 3 and 4, it did not call function 'divides_evenly' to check if they are prime
+        since it did not stop at Breakpoint 1.
+
+#####################################################################################################################
+
+#3 ANALYSIS_BUG:
+        According to the GDB results and analysis showing above, I indicate that the function 'is_prime' has bugs when 
+    calling for function 'divides_evenly'. 
+        The algorithm to judge whether a number n is prime is to check if there exists number x which is less than or equal 
+    to sqrt(n) that could divide n. Considering this algorithm, function 'is_prime' needs to call function 'divides_evenly'
+    with divisor 2 <= [(sqrt(n))] <= sqrt(n). Clearly, when check whether 7 is a prime number, 'is_prime' should call 'divides_evenly'
+    for once with divisor 2 and when check 9, it should call 'divides_evenly' with divisor 2 and 3. 
+        Thus, the reason for the output to regard 4, 9, 16, 25..., n^2 where n is prime number as prime is that 'is_prime' does not
+    check divisor sqrt(n) by setting the condition of divisor as 2 <= [(sqrt(n))] < sqrt(n) without considering [(sqrt(n))] = sqrt(n).
+    And when the value is 2, 3 and 4, as sqrt of 2, 3 and 4 did not satisfy 2 <= [(sqrt(n))] < sqrt(n), the function 'is_prime' simply return 
+    0 to indicate that 2, 3 and 4 are prime.
+
+
+
+
+
+
+
+
+
+
+
+
+3. sort
+
+#1 TEST_CASES:
+    INPUT:                  1 22 3 45 51 96 117 18 29 13 9 100 41 23 12 99 15 19 58 97
+    ACTUAL_OUTPUT:
+                    #1      1 3 9 12 13 15 18 19 22 23 29 41 45 51 51 58 96 97 99 100 
+                    #2      1 3 9 12 13 15 18 19 22 22 23 29 41 45 51 58 96 97 99 100 
+                    #3      1 3 9 12 13 15 18 19 22 23 29 41 45 51 58 96 97 99 100 117
+                    #4      1 3 9 12 13 15 18 19 22 23 29 41 45 51 58 96 97 99 100 117 
+                    #5      1 3 9 12 13 15 18 19 22 23 29 41 45 51 58 96 97 99 100 117 
+                    #6      1 3 9 12 12 13 15 18 19 22 23 29 41 45 51 58 96 97 99 100 
+    DESIRED_OUTPUT          1 3 9 12 13 15 18 19 22 23 29 41 45 51 58 96 97 99 100 117
+    DESCRIPTION:            As shown in above 6 cases, the program have correct and incorrect outputs for same input array.
+                            And the incorrect output has a number randomly repeated and replace the largest number 117 in the array.
+
+    INPUT:                  2 7 5
+    ACTUAL_OUTPUT:                                    
+                    #1      2 5 7
+                    #2      2 5 7
+                    #3      2 5 5
+                    #4      2 5 5
+                    #5      2 2 5
+    DESCRIPTION:            Similar to previous test case, the sorted array has a number randomly repeated.
+
+#####################################################################################################################
+
+#2 TRACE_BUGS:
+    I modify the test1.txt and test one case for more than 15 times and catch some possibility of the bugs.
+    Also, I use GDB commands: (gdb) break, (gdb) continue, (gdb) print.
+    I will only show the GDB commands and result for the situation when bug occurs as it occurs randomly. 
+    The test case I use is {4 3 6 99 65} with n = 5.
+    ______________________________________________________________________________________________________
+    GDB_COMMAND_WITH_OUTPUT:
+
+        (gdb) run test1.txt
+            Starting program: /home/guanshujie/Documents/ECE220/MP/mp7/sort/sort test1.txt
+
+            Breakpoint 1, heapify (arr=0x55555555a490, n=5, i=1) at sort.c:33
+            33	    if (largest != i)
+
+    #1  (gdb) print *arr@7
+            $221 = {4, 99, 6, 3, 65, 65, 129889}
+        (gdb) c
+            Continuing.
+
+        ....(Repeat continue command until 'n' decreased by main function)
+
+            Breakpoint 1, heapify (arr=0x55555555a490, n=5, i=1) at sort.c:33
+            33	    if (largest != i)
+        (gdb) c
+            Continuing.
+
+            Breakpoint 1, heapify (arr=0x55555555a490, n=4, i=0) at sort.c:33
+            33	    if (largest != i)
+    #2  (gdb) print *arr@7
+            $222 = {4, 65, 6, 3, 65, 99, 129889}
+        (gdb) c
+            Continuing.
+
+            Breakpoint 1, heapify (arr=0x55555555a490, n=3, i=0) at sort.c:33
+            33	    if (largest != i)
+        (gdb) print *arr@7
+            $223 = {3, 4, 6, 65, 65, 99, 129889}
+        
+        ....
+    ______________________________________________________________________________________________________
+    #Analysis of GDB results:
+            I set a break point at line 33 in sort.c.
+            As we can see from the above gdb commands, one of the number 65 in 'arr' repeats and replace the 
+        largest number 99, which indicates a bug. 
+            The command '(gdb) print *arr@7' print 7 elements in the memory locations where 'arr' is stored 
+        and clearly, there exists an extra number at arr[5].
+    #Analysis of results and erroneous behavior:
+            As I test the same cases for many times and it indicates that this bug occurs randomly without specific
+        rules. According to Heapsort algorithm, the first operation for a unsorted array is to reorder it such that
+        it has largest number at the top of the binary tree and gradually decrease to the bottom of the tree. 
+            Before command#1, the array has been reordered with Max Heapify and after command#1 it should step into 
+        Heapsort by swapping top element and bottom element. However, as we can derive from 'print' results, the largest
+        element 99 at the top disappears and a repeated 65 occurs. 
+            Also, as we can see from the #1'print' result, there exists an extra element at the end of the array in 
+        the memory location with index arr[n]. After the Max Heapify, we can see from #2 result that 99 was swapped to
+        the end, out of the arr with index arr[n] and the extra element was added into the array with index arr[n-1]. 
+        Thus, when the heapify finishes, the 99 is out of the arr and there exists repeated 65.
+            Thus, the bug occurs when swap top element with bottom element after Max Heapify finishes.
+
+#####################################################################################################################
+
+#3 ANALYSIS_BUG:
+            As I shown above, the bug occurs when swap top element with bottom element. and after testing other cases,  
+        it occurs that the extra element in arr[n] is randomly chosen from the elements in arr[0] to arr[n-1]. The incorrect
+        result occurs when the extra element is not the largest element in the array and the correct result occurs when 
+        it is. 
+            The main reason for this bug happens in main function. Clearly, the main function use a loop to go through from [n/2]
+        to 0 where n represent the length of array. When it loops to n = 0 for the first time, it indicates that Max Heapify has finished and 
+        top element is the largest element. Thus, the main function should call 'swap' function to swap top and bottom element
+        and then reduce the n and again apply Max Heapify. However, when call 'swap' function to swap top and bottom element
+        for the first time, it swapped top element and [n]th element instead of [n-1]th element. But when it finished Max Heapify
+        later, it will swap top and bottom correctly.
+            Take above case as example, if the extra element at arr[n] is 99, when Max Heapify finishes for first time, it swapped
+        top element 99 and [n]th element, which is also 99. Thus the Heap remains the same and generates correct output. If the extra
+        element is 4, when Max Heapify finishes for the first time, it will swap top element 99 and [n]th element, which is 4. Thus, there
+        exists two 4 in the array and the output will have repeated 4.
+            The possible cause of this bug might be a useless random command which adds a random number out of the specific array and 
+        there exists an extra swap code when Max Heapify finished for the first time. 
+            That is said, there exists a number at arr[n] and this number is chosen randomly from the array we input into the program. 
+        And the extra swap command swap the top element with arr[n] when the Max Heapify finished for the first time. It seems that 
+        the code regards the length of the array as n+1 instead of n and thus when Max Heapify finishes for the first time, it swapped 
+        arr[0] and arr[n] instead of arr[n-1] using 'swap' function.
+             

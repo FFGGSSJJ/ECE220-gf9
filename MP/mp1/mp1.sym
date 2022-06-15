@@ -1,0 +1,27 @@
+// Symbol table
+// Scope level 0:
+//	Symbol Name       Page Address
+//	----------------  ------------
+//	BEGIN             3000
+//	TEST              300B
+//	R0_OK             3012
+//	BITS              3013
+//	R0_BAD            3014
+//	PRINT_SLOT        302C
+//	PRINT_3SPACES     3039
+//	PRINT_1ZERO       3040
+//	PRINT_TIME        3042
+//	LARGE             3049
+//	TWENTY            3050
+//	PREZERO           3054
+//	PRINT_2ZERO       3057
+//	PRINT_2SPACES     305D
+//	PRINT_CENTERED    3062
+//	LENGTH            3067
+//	MORE9             3071
+//	LESS9             3079
+//	COUNT             307E
+//	SPACE1            3085
+//	STRING            3089
+//	SPACE2            308E
+
